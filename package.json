@@ -1,0 +1,43 @@
+{
+  "name": "@typhonjs-utils/logger-color",
+  "description": "Provides ANSI color logging.",
+  "version": "0.0.0",
+  "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "contributors": [
+    "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
+  ],
+  "devDependencies": {
+    "@typhonjs-plugin/manager": "^0.0.1",
+    "@typhonjs-utils/build-test": "^0.1.0",
+    "@typhonjs-utils/error-parser": "^0.0.7"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "files": [
+    "/npm-shrinkwrap.json",
+    "/src"
+  ],
+  "homepage": "https://github.com/typhonjs-node-utils/logger-color",
+  "keywords": [
+    "typhonjs",
+    "utils",
+    "logger",
+    "color"
+  ],
+  "license": "MPL-2.0",
+  "repository": "github:typhonjs-node-utils/logger-color",
+  "bugs": "https://github.com/typhonjs-node-utils/logger-color/issues",
+  "scripts": {
+    "eslint": "eslint .",
+    "posttest": "npm run eslint",
+    "prepublishOnly": "npm run test",
+    "test": "c8 --reporter=lcov --reporter=text-summary mocha -colors \"test/src/**/*.test.js\""
+  }
+}
