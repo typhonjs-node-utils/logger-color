@@ -1,13 +1,14 @@
 {
   "name": "@typhonjs-utils/logger-color",
   "description": "Provides ANSI color logging.",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
   "type": "module",
-  "main": "src/index.js",
-  "module": "src/index.js",
+  "main": "src/ColorLogger.js",
+  "module": "src/ColorLogger.js",
   "exports": {
-    ".": "./src/index.js"
+    ".": "./src/ColorLogger.js",
+    "./plugin": "./src/plugin.js"
   },
   "contributors": [
     "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
@@ -24,7 +25,7 @@
     "/npm-shrinkwrap.json",
     "/src"
   ],
-  "homepage": "https://github.com/typhonjs-node-utils/logger-color",
+  "homepage": "https://github.com/typhonjs-node-utils/logger-color#readme",
   "keywords": [
     "typhonjs",
     "utils",
