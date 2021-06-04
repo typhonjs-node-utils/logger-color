@@ -60,6 +60,7 @@ export default class ColorLogger
        * Stores ColorLogger options.
        *
        * @type {ColorLoggerOptions}
+       *
        * @private
        */
       this._options =
@@ -320,6 +321,7 @@ export default class ColorLogger
     * Display fatal (light red) log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    fatal(...msg) { return this._output('fatal', false, false, false, false, ...msg); }
@@ -328,6 +330,7 @@ export default class ColorLogger
     * Display fatal (light red) log; objects compacted.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    fatalCompact(...msg) { return this._output('fatal', true, false, false, false, ...msg); }
@@ -336,6 +339,7 @@ export default class ColorLogger
     * Display fatal log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    fatalNoColor(...msg) { return this._output('fatal', false, true, false, false, ...msg); }
@@ -344,6 +348,7 @@ export default class ColorLogger
     * Display raw fatal log (no style / no color).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    fatalRaw(...msg) { return this._output('fatal', false, true, true, false, ...msg); }
@@ -352,6 +357,7 @@ export default class ColorLogger
     * Display fatal log (with time).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    fatalTime(...msg) { return this._output('fatal', false, false, false, true, ...msg); }
@@ -360,6 +366,7 @@ export default class ColorLogger
     * Display error(red) log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    error(...msg) { return this._output('error', false, false, false, false, ...msg); }
@@ -368,6 +375,7 @@ export default class ColorLogger
     * Display error(red) log; objects compacted.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    errorCompact(...msg) { return this._output('error', true, false, false, false, ...msg); }
@@ -376,6 +384,7 @@ export default class ColorLogger
     * Display error log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    errorNoColor(...msg) { return this._output('error', false, true, false, false, ...msg); }
@@ -384,6 +393,7 @@ export default class ColorLogger
     * Display raw error log (no style / no color).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    errorRaw(...msg) { return this._output('error', false, true, true, false, ...msg); }
@@ -392,6 +402,7 @@ export default class ColorLogger
     * Display error log (with time).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    errorTime(...msg) { return this._output('error', false, false, false, true, ...msg); }
@@ -400,6 +411,7 @@ export default class ColorLogger
     * Display warning (yellow) log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    warn(...msg) { return this._output('warn', false, false, false, false, ...msg); }
@@ -408,6 +420,7 @@ export default class ColorLogger
     * Display warning (yellow) log; objects compacted.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    warnCompact(...msg) { return this._output('warn', true, false, false, false, ...msg); }
@@ -416,6 +429,7 @@ export default class ColorLogger
     * Display warning log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    warnNoColor(...msg) { return this._output('warn', false, true, false, false, ...msg); }
@@ -424,6 +438,7 @@ export default class ColorLogger
     * Display raw warn log (no style / no color).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    warnRaw(...msg) { return this._output('warn', false, true, true, false, ...msg); }
@@ -432,6 +447,7 @@ export default class ColorLogger
     * Display warn log (with time).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    warnTime(...msg) { return this._output('warn', false, false, false, true, ...msg); }
@@ -440,6 +456,7 @@ export default class ColorLogger
     * Display info (green) log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    info(...msg) { return this._output('info', false, false, false, false, ...msg); }
@@ -448,6 +465,7 @@ export default class ColorLogger
     * Display info (green) log; objects compacted.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    infoCompact(...msg) { return this._output('info', true, false, false, false, ...msg); }
@@ -456,6 +474,7 @@ export default class ColorLogger
     * Display info log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    infoNoColor(...msg) { return this._output('info', false, true, false, false, ...msg); }
@@ -464,6 +483,7 @@ export default class ColorLogger
     * Display raw info log (no style / no color).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    infoRaw(...msg) { return this._output('info', false, true, true, false, ...msg); }
@@ -472,6 +492,7 @@ export default class ColorLogger
     * Display info log (with time).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    infoTime(...msg) { return this._output('info', false, false, false, true, ...msg); }
@@ -480,6 +501,7 @@ export default class ColorLogger
     * Display debug (blue) log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    debug(...msg) { return this._output('debug', false, false, false, false, ...msg); }
@@ -488,6 +510,7 @@ export default class ColorLogger
     * Display debug (blue) log; objects compacted.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    debugCompact(...msg) { return this._output('debug', true, false, false, false, ...msg); }
@@ -496,6 +519,7 @@ export default class ColorLogger
     * Display debug log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    debugNoColor(...msg) { return this._output('debug', false, true, false, false, ...msg); }
@@ -504,6 +528,7 @@ export default class ColorLogger
     * Display raw debug log (no style / no color).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    debugRaw(...msg) { return this._output('debug', false, true, true, false, ...msg); }
@@ -512,6 +537,7 @@ export default class ColorLogger
     * Display debug log (with time).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    debugTime(...msg) { return this._output('debug', false, false, false, true, ...msg); }
@@ -520,6 +546,7 @@ export default class ColorLogger
     * Display verbose (purple) log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    verbose(...msg) { return this._output('verbose', false, false, false, false, ...msg); }
@@ -528,6 +555,7 @@ export default class ColorLogger
     * Display verbose (purple) log; objects compacted.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    verboseCompact(...msg) { return this._output('verbose', true, false, false, false, ...msg); }
@@ -536,6 +564,7 @@ export default class ColorLogger
     * Display verbose log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    verboseNoColor(...msg) { return this._output('verbose', false, true, false, false, ...msg); }
@@ -544,6 +573,7 @@ export default class ColorLogger
     * Display raw verbose log (no style / no color).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    verboseRaw(...msg) { return this._output('verbose', false, true, true, false, ...msg); }
@@ -552,6 +582,7 @@ export default class ColorLogger
     * Display verbose log (with time).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    verboseTime(...msg) { return this._output('verbose', false, false, false, true, ...msg); }
@@ -560,6 +591,7 @@ export default class ColorLogger
     * Display trace (purple) log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    trace(...msg) { return this._output('trace', false, false, false, false, ...msg); }
@@ -568,6 +600,7 @@ export default class ColorLogger
     * Display trace (purple) log; objects compacted.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    traceCompact(...msg) { return this._output('trace', true, false, false, false, ...msg); }
@@ -576,6 +609,7 @@ export default class ColorLogger
     * Display trace log.
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    traceNoColor(...msg) { return this._output('trace', false, true, false, false, ...msg); }
@@ -584,6 +618,7 @@ export default class ColorLogger
     * Display raw trace log (no style / no color).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    traceRaw(...msg) { return this._output('trace', false, true, true, false, ...msg); }
@@ -592,6 +627,7 @@ export default class ColorLogger
     * Display trace log (with time).
     *
     * @param {...*} msg - log message.
+    *
     * @returns {string} formatted log message.
     */
    traceTime(...msg) { return this._output('trace', false, false, false, true, ...msg); }

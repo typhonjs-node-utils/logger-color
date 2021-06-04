@@ -2,8 +2,8 @@ import { assert }       from 'chai';
 
 import PluginManager    from '@typhonjs-plugin/manager';
 
-import { ColorLogger }  from '../../src/index.js';
-import logger           from '../../src/index.js';
+import ColorLogger      from '../../src/ColorLogger.js';
+import logger           from '../../src/plugin.js';
 
 // TODO: Add more tests!
 describe('ColorLogger:', () =>
