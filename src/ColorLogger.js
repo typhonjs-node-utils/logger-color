@@ -45,7 +45,7 @@
  *
  * @see https://www.npmjs.com/package/@typhonjs-plugin/manager
  */
-export default class ColorLogger
+export class ColorLogger
 {
    /**
     * Instantiates ColorLogger allowing optional options to be set.

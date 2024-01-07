@@ -1,3 +1,3 @@
-import ColorLogger from './ColorLogger.js';
+import { ColorLogger } from './ColorLogger.js';
 
 export default new ColorLogger();
