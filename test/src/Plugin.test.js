@@ -18,7 +18,7 @@ describe('ColorLogger Plugin:', () =>
       {
          const result = logger.warn('A warning!');
 
-         assert.isTrue(result.startsWith('\u001b[33m[W]'));
+         assert.isTrue(result.startsWith('\u001b[33m'));
 
          assert.strictEqual(logger.getLogLevel(), 'info');
       });
@@ -32,23 +32,23 @@ describe('ColorLogger Plugin:', () =>
 
       describe('invalid log levels:', () =>
       {
-         it('random:', () => assert.isFalse(logger.isValidLogLevel('random')));
-         it('number:', () => assert.isFalse(logger.isValidLogLevel(2)));
-         it('object:', () => assert.isFalse(logger.isValidLogLevel({})));
-         it('array:', () => assert.isFalse(logger.isValidLogLevel([])));
+         it('random:', () => assert.isFalse(logger.isValidLevel('random')));
+         it('number:', () => assert.isFalse(logger.isValidLevel(2)));
+         it('object:', () => assert.isFalse(logger.isValidLevel({})));
+         it('array:', () => assert.isFalse(logger.isValidLevel([])));
       });
 
       describe('valid log levels:', () =>
       {
-         it('off:', () => assert.isTrue(logger.isValidLogLevel('off')));
-         it('fatal:', () => assert.isTrue(logger.isValidLogLevel('fatal')));
-         it('error:', () => assert.isTrue(logger.isValidLogLevel('error')));
-         it('warn:', () => assert.isTrue(logger.isValidLogLevel('warn')));
-         it('info:', () => assert.isTrue(logger.isValidLogLevel('info')));
-         it('verbose:', () => assert.isTrue(logger.isValidLogLevel('verbose')));
-         it('debug:', () => assert.isTrue(logger.isValidLogLevel('debug')));
-         it('trace:', () => assert.isTrue(logger.isValidLogLevel('trace')));
-         it('all:', () => assert.isTrue(logger.isValidLogLevel('all')));
+         it('off:', () => assert.isTrue(logger.isValidLevel('off')));
+         it('fatal:', () => assert.isTrue(logger.isValidLevel('fatal')));
+         it('error:', () => assert.isTrue(logger.isValidLevel('error')));
+         it('warn:', () => assert.isTrue(logger.isValidLevel('warn')));
+         it('info:', () => assert.isTrue(logger.isValidLevel('info')));
+         it('verbose:', () => assert.isTrue(logger.isValidLevel('verbose')));
+         it('debug:', () => assert.isTrue(logger.isValidLevel('debug')));
+         it('trace:', () => assert.isTrue(logger.isValidLevel('trace')));
+         it('all:', () => assert.isTrue(logger.isValidLevel('all')));
       });
    });
 
