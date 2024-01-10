@@ -4,7 +4,7 @@
  * an eventbus with all methods exposed as event bindings.
  *
  * There are several format options to display additional data / info including location where the log method is
- * invoked in addition to a time stamp. By default the time stamp option is disabled.
+ * invoked in addition to a time stamp. By default, the time stamp option is disabled.
  *
  * When passing in an Error for logging the stack trace of the error will be used for info and trace creation. The
  * `trace` method will automatically generate a stack trace.
@@ -52,6 +52,67 @@
 export class ColorLogger
 {
    /**
+    * ASCII ESCAPE SEQUENCE https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+    *
+    * @type {Record<Partial<LogLevel>, string>}
+    */
+   static #LEVEL_TO_COLOR = Object.freeze({
+      fatal: '[1;31m[F]', // light red
+      error: '[31m[E]',   // red
+      warn: '[33m[W]',    // yellow
+      info: '[32m[I]',    // green
+      debug: '[34m[D]',   // blue
+      verbose: '[35m[V]', // purple
+      trace: '[1;36m[T]'  // light cyan
+   });
+
+   /**
+    * Stores the log level name to level value.
+    *
+    * @type {Record<LogLevel, number>}
+    */
+   static #LOG_LEVELS = Object.freeze({
+      off: 8,
+      fatal: 7,
+      error: 6,
+      warn: 5,
+      info: 4,
+      verbose: 3,
+      debug: 2,
+      trace: 1,
+      all: 0
+   });
+
+   /**
+    * Stores the log level name to level value.
+    *
+    * @type {Record<string, LogLevel>}
+    */
+   static #LOG_LEVEL_STRINGS = Object.freeze({
+      8: 'off',
+      7: 'fatal',
+      6: 'error',
+      5: 'warn',
+      4: 'info',
+      3: 'verbose',
+      2: 'debug',
+      1: 'trace',
+      0: 'all'
+   });
+
+   /**
+    * Provides a RegExp to ignore ColorLogger.js for locally processed trace.
+    *
+    * @type {RegExp}
+    */
+   static #REGEX_COLOR_LOGGER = /ColorLogger\.js/;
+
+   /**
+    * @type {import('./types').ColorLoggerExt}
+    */
+   #extAPI;
+
+   /**
     * Stores the current internal log level.
     *
     * @type {number}
@@ -82,19 +143,115 @@ export class ColorLogger
          showInfo: false
       };
 
-      this.#logLevel = s_LOG_LEVELS['info'];
+      this.#logLevel = ColorLogger.#LOG_LEVELS['info'];
 
       this.setOptions(options);
    }
 
    /**
+    * Validates that the current / requested levels are numbers and that current level is less than requested level.
+    *
+    * @param {number}   currentLevel - The current ColorLogger level.
+    *
+    * @param {number}   requestedLevel - The requested level to log.
+    *
+    * @returns {boolean} True if the requested level is greater than or equal to the current enabled log level.
+    */
+   static #IS_LEVEL_ENABLED(currentLevel, requestedLevel)
+   {
+      return Number.isInteger(currentLevel) && Number.isInteger(requestedLevel) && currentLevel <= requestedLevel;
+   }
+
+   /**
+    * Parses a V8 stack trace and pulls out the first file name / line / col not from ColorLogger.js
+    *
+    * @param {string}   stack - A stack from an Error.
+    *
+    * @returns {{trace: string, info: string}} The parsed trace.
+    */
+   static #PARSE_STACK_TRACE(stack)
+   {
+      const lines = stack.split('\n');
+      let cntr = 0;
+
+      let info = 'no stack trace';
+      const trace = [];
+
+      for (; cntr < lines.length; cntr++)
+      {
+         if (ColorLogger.#REGEX_COLOR_LOGGER.test(lines[cntr])) { continue; }
+
+         const matched = lines[cntr].match(/([\w\d\-_.]*:\d+:\d+)/);
+
+         if (matched !== null)
+         {
+            info = matched[1];
+            break;
+         }
+      }
+
+      // If gathering trace info continue to push lines to `trace`. Ignoring any lines that originate from ColorLogger.
+      for (; cntr < lines.length; cntr++)
+      {
+         if (ColorLogger.#REGEX_COLOR_LOGGER.test(lines[cntr])) { continue; }
+
+         trace.push(lines[cntr]);
+      }
+
+      return { info, trace: trace.join('\n') };
+   }
+
+   /**
+    * @returns {import('./types').ColorLoggerExt} Extended logging API.
+    */
+   get ext()
+   {
+      if (!this.#extAPI)
+      {
+         /** @type {import('./types').ColorLoggerExt} */
+         this.#extAPI = Object.freeze({
+            fatalCompact: (...msg) => this.#output('fatal', true, false, false, false, ...msg),
+            fatalNoColor: (...msg) => this.#output('fatal', false, true, false, false, ...msg),
+            fatalRaw: (...msg) => this.#output('fatal', false, true, true, false, ...msg),
+            fatalTime: (...msg) => this.#output('fatal', false, false, false, true, ...msg),
+            errorCompact: (...msg) => this.#output('error', true, false, false, false, ...msg),
+            errorNoColor: (...msg) => this.#output('error', false, true, false, false, ...msg),
+            errorRaw: (...msg) => this.#output('error', false, true, true, false, ...msg),
+            errorTime: (...msg) => this.#output('error', false, false, false, true, ...msg),
+            warnCompact: (...msg) => this.#output('warn', true, false, false, false, ...msg),
+            warnNoColor: (...msg) => this.#output('warn', false, true, false, false, ...msg),
+            warnRaw: (...msg) => this.#output('warn', false, true, true, false, ...msg),
+            warnTime: (...msg) => this.#output('warn', false, false, false, true, ...msg),
+            infoCompact: (...msg) => this.#output('info', true, false, false, false, ...msg),
+            infoNoColor: (...msg) => this.#output('info', false, true, false, false, ...msg),
+            infoRaw: (...msg) => this.#output('info', false, true, true, false, ...msg),
+            infoTime: (...msg) => this.#output('info', false, false, false, true, ...msg),
+            debugCompact: (...msg) => this.#output('debug', true, false, false, false, ...msg),
+            debugNoColor: (...msg) => this.#output('debug', false, true, false, false, ...msg),
+            debugRaw: (...msg) => this.#output('debug', false, true, true, false, ...msg),
+            debugTime: (...msg) => this.#output('debug', false, false, false, true, ...msg),
+            verboseCompact: (...msg) => this.#output('verbose', true, false, false, false, ...msg),
+            verboseNoColor: (...msg) => this.#output('verbose', false, true, false, false, ...msg),
+            verboseRaw: (...msg) => this.#output('verbose', false, true, true, false, ...msg),
+            verboseTime: (...msg) => this.#output('verbose', false, false, false, true, ...msg),
+            traceCompact: (...msg) => this.#output('trace', true, false, false, false, ...msg),
+            traceNoColor: (...msg) => this.#output('trace', false, true, false, false, ...msg),
+            traceRaw: (...msg) => this.#output('trace', false, true, true, false, ...msg),
+            traceTime: (...msg) => this.#output('trace', false, false, false, true, ...msg)
+         });
+      }
+
+      return this.#extAPI;
+   }
+
+   /**
     * Get the log level string.
     *
-    * @returns {string} Log level string.
+    * @returns {LogLevel} Log level string.
     */
    getLogLevel()
    {
-      return s_LOG_LEVEL_STRINGS[this.#logLevel];
+      return ColorLogger.#LOG_LEVEL_STRINGS[this.#logLevel];
    }
 
    /**
@@ -142,7 +299,7 @@ export class ColorLogger
             catch (err) { /* noop */ }
          }
 
-         return s_PARSE_STACK_TRACE(processError.stack);
+         return ColorLogger.#PARSE_STACK_TRACE(processError.stack);
       }
 
       return { info: 'no stack trace', trace: '' };
@@ -157,7 +314,7 @@ export class ColorLogger
     */
    isLevelEnabled(level)
    {
-      const requestedLevel = s_LOG_LEVELS[level];
+      const requestedLevel = ColorLogger.#LOG_LEVELS[level];
 
       if (typeof requestedLevel === 'undefined' || requestedLevel === null)
       {
@@ -165,7 +322,7 @@ export class ColorLogger
          return false;
       }
 
-      return s_IS_LEVEL_ENABLED(this.#logLevel, requestedLevel);
+      return ColorLogger.#IS_LEVEL_ENABLED(this.#logLevel, requestedLevel);
    }
 
    /**
@@ -177,7 +334,7 @@ export class ColorLogger
     */
    isValidLogLevel(level)
    {
-      return typeof level === 'string' && typeof s_LOG_LEVELS[level] === 'number';
+      return typeof level === 'string' && typeof ColorLogger.#LOG_LEVELS[level] === 'number';
    }
 
    /**
@@ -200,7 +357,7 @@ export class ColorLogger
     */
    #output(level, compact = false, nocolor = false, raw = false, time = false,  ...msg)
    {
-      if (!s_IS_LEVEL_ENABLED(this.#logLevel, s_LOG_LEVELS[level])) { return; }
+      if (!ColorLogger.#IS_LEVEL_ENABLED(this.#logLevel, ColorLogger.#LOG_LEVELS[level])) { return; }
 
       const text = [];
 
@@ -224,7 +381,7 @@ export class ColorLogger
          }
       }
 
-      const color = this.#options.noColor || nocolor ? '' : s_LEVEL_TO_COLOR[level];
+      const color = this.#options.noColor || nocolor ? '' : ColorLogger.#LEVEL_TO_COLOR[level];
 
       const spacer = raw ? '' : ' ';
 
@@ -292,7 +449,7 @@ export class ColorLogger
     */
    setLogLevel(level)
    {
-      const requestedLevel = s_LOG_LEVELS[level];
+      const requestedLevel = ColorLogger.#LOG_LEVELS[level];
 
       if (requestedLevel === void 0 || requestedLevel === null)
       {
@@ -331,42 +488,6 @@ export class ColorLogger
    fatal(...msg) { return this.#output('fatal', false, false, false, false, ...msg); }
 
    /**
-    * Display fatal (light red) log; objects compacted.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   fatalCompact(...msg) { return this.#output('fatal', true, false, false, false, ...msg); }
-
-   /**
-    * Display fatal log.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   fatalNoColor(...msg) { return this.#output('fatal', false, true, false, false, ...msg); }
-
-   /**
-    * Display raw fatal log (no style / no color).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   fatalRaw(...msg) { return this.#output('fatal', false, true, true, false, ...msg); }
-
-   /**
-    * Display fatal log (with time).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   fatalTime(...msg) { return this.#output('fatal', false, false, false, true, ...msg); }
-
-   /**
     * Display error(red) log.
     *
     * @param {...*} msg - log message.
@@ -374,42 +495,6 @@ export class ColorLogger
     * @returns {string} formatted log message.
     */
    error(...msg) { return this.#output('error', false, false, false, false, ...msg); }
-
-   /**
-    * Display error(red) log; objects compacted.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   errorCompact(...msg) { return this.#output('error', true, false, false, false, ...msg); }
-
-   /**
-    * Display error log.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   errorNoColor(...msg) { return this.#output('error', false, true, false, false, ...msg); }
-
-   /**
-    * Display raw error log (no style / no color).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   errorRaw(...msg) { return this.#output('error', false, true, true, false, ...msg); }
-
-   /**
-    * Display error log (with time).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   errorTime(...msg) { return this.#output('error', false, false, false, true, ...msg); }
 
    /**
     * Display warning (yellow) log.
@@ -421,42 +506,6 @@ export class ColorLogger
    warn(...msg) { return this.#output('warn', false, false, false, false, ...msg); }
 
    /**
-    * Display warning (yellow) log; objects compacted.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   warnCompact(...msg) { return this.#output('warn', true, false, false, false, ...msg); }
-
-   /**
-    * Display warning log.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   warnNoColor(...msg) { return this.#output('warn', false, true, false, false, ...msg); }
-
-   /**
-    * Display raw warn log (no style / no color).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   warnRaw(...msg) { return this.#output('warn', false, true, true, false, ...msg); }
-
-   /**
-    * Display warn log (with time).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   warnTime(...msg) { return this.#output('warn', false, false, false, true, ...msg); }
-
-   /**
     * Display info (green) log.
     *
     * @param {...*} msg - log message.
@@ -464,42 +513,6 @@ export class ColorLogger
     * @returns {string} formatted log message.
     */
    info(...msg) { return this.#output('info', false, false, false, false, ...msg); }
-
-   /**
-    * Display info (green) log; objects compacted.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   infoCompact(...msg) { return this.#output('info', true, false, false, false, ...msg); }
-
-   /**
-    * Display info log.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   infoNoColor(...msg) { return this.#output('info', false, true, false, false, ...msg); }
-
-   /**
-    * Display raw info log (no style / no color).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   infoRaw(...msg) { return this.#output('info', false, true, true, false, ...msg); }
-
-   /**
-    * Display info log (with time).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   infoTime(...msg) { return this.#output('info', false, false, false, true, ...msg); }
 
    /**
     * Display debug (blue) log.
@@ -511,42 +524,6 @@ export class ColorLogger
    debug(...msg) { return this.#output('debug', false, false, false, false, ...msg); }
 
    /**
-    * Display debug (blue) log; objects compacted.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   debugCompact(...msg) { return this.#output('debug', true, false, false, false, ...msg); }
-
-   /**
-    * Display debug log.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   debugNoColor(...msg) { return this.#output('debug', false, true, false, false, ...msg); }
-
-   /**
-    * Display raw debug log (no style / no color).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   debugRaw(...msg) { return this.#output('debug', false, true, true, false, ...msg); }
-
-   /**
-    * Display debug log (with time).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   debugTime(...msg) { return this.#output('debug', false, false, false, true, ...msg); }
-
-   /**
     * Display verbose (purple) log.
     *
     * @param {...*} msg - log message.
@@ -556,42 +533,6 @@ export class ColorLogger
    verbose(...msg) { return this.#output('verbose', false, false, false, false, ...msg); }
 
    /**
-    * Display verbose (purple) log; objects compacted.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   verboseCompact(...msg) { return this.#output('verbose', true, false, false, false, ...msg); }
-
-   /**
-    * Display verbose log.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   verboseNoColor(...msg) { return this.#output('verbose', false, true, false, false, ...msg); }
-
-   /**
-    * Display raw verbose log (no style / no color).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   verboseRaw(...msg) { return this.#output('verbose', false, true, true, false, ...msg); }
-
-   /**
-    * Display verbose log (with time).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   verboseTime(...msg) { return this.#output('verbose', false, false, false, true, ...msg); }
-
-   /**
     * Display trace (purple) log.
     *
     * @param {...*} msg - log message.
@@ -599,42 +540,6 @@ export class ColorLogger
     * @returns {string} formatted log message.
     */
    trace(...msg) { return this.#output('trace', false, false, false, false, ...msg); }
-
-   /**
-    * Display trace (purple) log; objects compacted.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   traceCompact(...msg) { return this.#output('trace', true, false, false, false, ...msg); }
-
-   /**
-    * Display trace log.
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   traceNoColor(...msg) { return this.#output('trace', false, true, false, false, ...msg); }
-
-   /**
-    * Display raw trace log (no style / no color).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   traceRaw(...msg) { return this.#output('trace', false, true, true, false, ...msg); }
-
-   /**
-    * Display trace log (with time).
-    *
-    * @param {...*} msg - log message.
-    *
-    * @returns {string} formatted log message.
-    */
-   traceTime(...msg) { return this.#output('trace', false, false, false, true, ...msg); }
 
    /**
     * Wires up ColorLogger on the plugin eventbus.
@@ -647,6 +552,9 @@ export class ColorLogger
     */
    onPluginLoad(ev)
    {
+      /**
+       * @internal
+       */
       this._eventbus = ev.eventbus;
 
       let eventPrepend = '';
@@ -663,40 +571,40 @@ export class ColorLogger
       }
 
       this._eventbus.on(`${eventPrepend}log:fatal`, this.fatal, this);
-      this._eventbus.on(`${eventPrepend}log:fatal:compact`, this.fatalCompact, this);
-      this._eventbus.on(`${eventPrepend}log:fatal:nocolor`, this.fatalNoColor, this);
-      this._eventbus.on(`${eventPrepend}log:fatal:raw`, this.fatalRaw, this);
-      this._eventbus.on(`${eventPrepend}log:fatal:time`, this.fatalTime, this);
+      this._eventbus.on(`${eventPrepend}log:fatal:compact`, this.ext.fatalCompact, this);
+      this._eventbus.on(`${eventPrepend}log:fatal:nocolor`, this.ext.fatalNoColor, this);
+      this._eventbus.on(`${eventPrepend}log:fatal:raw`, this.ext.fatalRaw, this);
+      this._eventbus.on(`${eventPrepend}log:fatal:time`, this.ext.fatalTime, this);
       this._eventbus.on(`${eventPrepend}log:error`, this.error, this);
-      this._eventbus.on(`${eventPrepend}log:error:compact`, this.errorCompact, this);
-      this._eventbus.on(`${eventPrepend}log:error:nocolor`, this.errorNoColor, this);
-      this._eventbus.on(`${eventPrepend}log:error:raw`, this.errorRaw, this);
-      this._eventbus.on(`${eventPrepend}log:error:time`, this.errorTime, this);
+      this._eventbus.on(`${eventPrepend}log:error:compact`, this.ext.errorCompact, this);
+      this._eventbus.on(`${eventPrepend}log:error:nocolor`, this.ext.errorNoColor, this);
+      this._eventbus.on(`${eventPrepend}log:error:raw`, this.ext.errorRaw, this);
+      this._eventbus.on(`${eventPrepend}log:error:time`, this.ext.errorTime, this);
       this._eventbus.on(`${eventPrepend}log:warn`, this.warn, this);
-      this._eventbus.on(`${eventPrepend}log:warn:compact`, this.warnCompact, this);
-      this._eventbus.on(`${eventPrepend}log:warn:nocolor`, this.warnNoColor, this);
-      this._eventbus.on(`${eventPrepend}log:warn:raw`, this.warnRaw, this);
-      this._eventbus.on(`${eventPrepend}log:warn:time`, this.warnTime, this);
+      this._eventbus.on(`${eventPrepend}log:warn:compact`, this.ext.warnCompact, this);
+      this._eventbus.on(`${eventPrepend}log:warn:nocolor`, this.ext.warnNoColor, this);
+      this._eventbus.on(`${eventPrepend}log:warn:raw`, this.ext.warnRaw, this);
+      this._eventbus.on(`${eventPrepend}log:warn:time`, this.ext.warnTime, this);
       this._eventbus.on(`${eventPrepend}log:info`, this.info, this);
-      this._eventbus.on(`${eventPrepend}log:info:compact`, this.infoCompact, this);
-      this._eventbus.on(`${eventPrepend}log:info:nocolor`, this.infoNoColor, this);
-      this._eventbus.on(`${eventPrepend}log:info:raw`, this.infoRaw, this);
-      this._eventbus.on(`${eventPrepend}log:info:time`, this.infoTime, this);
+      this._eventbus.on(`${eventPrepend}log:info:compact`, this.ext.infoCompact, this);
+      this._eventbus.on(`${eventPrepend}log:info:nocolor`, this.ext.infoNoColor, this);
+      this._eventbus.on(`${eventPrepend}log:info:raw`, this.ext.infoRaw, this);
+      this._eventbus.on(`${eventPrepend}log:info:time`, this.ext.infoTime, this);
       this._eventbus.on(`${eventPrepend}log:debug`, this.debug, this);
-      this._eventbus.on(`${eventPrepend}log:debug:compact`, this.debugCompact, this);
-      this._eventbus.on(`${eventPrepend}log:debug:nocolor`, this.debugNoColor, this);
-      this._eventbus.on(`${eventPrepend}log:debug:raw`, this.debugRaw, this);
-      this._eventbus.on(`${eventPrepend}log:debug:time`, this.debugTime, this);
+      this._eventbus.on(`${eventPrepend}log:debug:compact`, this.ext.debugCompact, this);
+      this._eventbus.on(`${eventPrepend}log:debug:nocolor`, this.ext.debugNoColor, this);
+      this._eventbus.on(`${eventPrepend}log:debug:raw`, this.ext.debugRaw, this);
+      this._eventbus.on(`${eventPrepend}log:debug:time`, this.ext.debugTime, this);
       this._eventbus.on(`${eventPrepend}log:verbose`, this.verbose, this);
-      this._eventbus.on(`${eventPrepend}log:verbose:compact`, this.verboseCompact, this);
-      this._eventbus.on(`${eventPrepend}log:verbose:nocolor`, this.verboseNoColor, this);
-      this._eventbus.on(`${eventPrepend}log:verbose:raw`, this.verboseRaw, this);
-      this._eventbus.on(`${eventPrepend}log:verbose:time`, this.verboseTime, this);
+      this._eventbus.on(`${eventPrepend}log:verbose:compact`, this.ext.verboseCompact, this);
+      this._eventbus.on(`${eventPrepend}log:verbose:nocolor`, this.ext.verboseNoColor, this);
+      this._eventbus.on(`${eventPrepend}log:verbose:raw`, this.ext.verboseRaw, this);
+      this._eventbus.on(`${eventPrepend}log:verbose:time`, this.ext.verboseTime, this);
       this._eventbus.on(`${eventPrepend}log:trace`, this.trace, this);
-      this._eventbus.on(`${eventPrepend}log:trace:compact`, this.traceCompact, this);
-      this._eventbus.on(`${eventPrepend}log:trace:nocolor`, this.traceNoColor, this);
-      this._eventbus.on(`${eventPrepend}log:trace:raw`, this.traceRaw, this);
-      this._eventbus.on(`${eventPrepend}log:trace:time`, this.traceTime, this);
+      this._eventbus.on(`${eventPrepend}log:trace:compact`, this.ext.traceCompact, this);
+      this._eventbus.on(`${eventPrepend}log:trace:nocolor`, this.ext.traceNoColor, this);
+      this._eventbus.on(`${eventPrepend}log:trace:raw`, this.ext.traceRaw, this);
+      this._eventbus.on(`${eventPrepend}log:trace:time`, this.ext.traceTime, this);
 
       this._eventbus.on(`${eventPrepend}log:level:get`, this.getLogLevel, this);
       this._eventbus.on(`${eventPrepend}log:level:is:enabled`, this.isLevelEnabled, this);
@@ -708,121 +616,12 @@ export class ColorLogger
 }
 
 /**
- * ASCII ESCAPE SEQUENCE https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
- *
- * @type {{n: string, v: string, d: string, i: string, w: string, e: string}}
+ * @typedef {'off' | 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'verbose' | 'trace' | 'all'} LogLevel The valid
+ * log level names.
  */
-const s_LEVEL_TO_COLOR =
-{
-   fatal: '[1;31m[F]', // light red
-   error: '[31m[E]',   // red
-   warn: '[33m[W]',    // yellow
-   info: '[32m[I]',    // green
-   debug: '[34m[D]',   // blue
-   verbose: '[35m[V]', // purple
-   trace: '[1;36m[T]'  // light cyan
-};
 
 /**
- * Stores the log level name to level value.
- *
- * @type {{off: number, fatal: number, error: number, warn: number, info: number, verbose: number, debug: number, trace: number, all: number}}
- */
-const s_LOG_LEVELS =
-{
-   off: 8,
-   fatal: 7,
-   error: 6,
-   warn: 5,
-   info: 4,
-   verbose: 3,
-   debug: 2,
-   trace: 1,
-   all: 0
-};
-
-/**
- * Stores the log level name to level value.
- *
- * @type {{"0": string, "1": string, "2": string, "3": string, "4": string, "5": string, "6": string, "7": string, "8": string}}
- */
-const s_LOG_LEVEL_STRINGS =
-{
-   8: 'off',
-   7: 'fatal',
-   6: 'error',
-   5: 'warn',
-   4: 'info',
-   3: 'verbose',
-   2: 'debug',
-   1: 'trace',
-   0: 'all'
-};
-
-/**
- * Validates that the current / requested levels are numbers and that current level is less than requested level.
- *
- * @param {number}   currentLevel - The current ColorLogger level.
- *
- * @param {number}   requestedLevel - The requested level to log.
- *
- * @returns {boolean} True if the requested level is greater than or equal to the current enabled log level.
- */
-const s_IS_LEVEL_ENABLED = (currentLevel, requestedLevel) =>
-{
-   return Number.isInteger(currentLevel) && Number.isInteger(requestedLevel) && currentLevel <= requestedLevel;
-};
-
-/**
- * Provides a RegExp to ignore ColorLogger.js for locally processed trace.
- *
- * @type {RegExp}
- */
-const s_REGEX_COLOR_LOGGER = /ColorLogger\.js/;
-
-/**
- * Parses a V8 stack trace and pulls out the first file name / line / col not from ColorLogger.js
- *
- * @param {string}   stack - A stack from an Error.
- *
- * @returns {{trace: string, info: string}} The parsed trace.
- */
-const s_PARSE_STACK_TRACE = (stack) =>
-{
-   const lines = stack.split('\n');
-   let cntr = 0;
-
-   let info = 'no stack trace';
-   const trace = [];
-
-   for (; cntr < lines.length; cntr++)
-   {
-      if (s_REGEX_COLOR_LOGGER.test(lines[cntr])) { continue; }
-
-      const matched = lines[cntr].match(/([\w\d\-_.]*:\d+:\d+)/);
-
-      if (matched !== null)
-      {
-         info = matched[1];
-         break;
-      }
-   }
-
-   // If gathering trace info continue to push lines to `trace`. Ignoring any lines that originate from ColorLogger.
-   for (; cntr < lines.length; cntr++)
-   {
-      if (s_REGEX_COLOR_LOGGER.test(lines[cntr])) { continue; }
-
-      trace.push(lines[cntr]);
-   }
-
-   return { info, trace: trace.join('\n') };
-};
-
-/**
- * Provides ColorLoggerOptions
- *
- * @typedef {object}    ColorLoggerOptions
+ * @typedef {object}    ColorLoggerOptions Provides ColorLoggerOptions
  *
  * @property {boolean}  [consoleEnabled=true] - If true output to `console.log` is enabled.
  *
