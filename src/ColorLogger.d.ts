@@ -413,7 +413,7 @@ type ColorLoggerOptions = {
     /**
      * Custom tag to prepend to log output.
      */
-    tag: string | undefined;
+    tag: string;
 };
 
 export { ColorLogger, type ColorLoggerExt, type ColorLoggerOptions, type LogLevel };

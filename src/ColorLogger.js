@@ -649,5 +649,5 @@ export class ColorLogger
  *
  * @property {boolean}  showLevel If true the log level is prepended to the log output.
  *
- * @property {string|undefined}  tag Custom tag to prepend to log output.
+ * @property {string}   tag Custom tag to prepend to log output.
  */
