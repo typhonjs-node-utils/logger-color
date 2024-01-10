@@ -7,22 +7,28 @@
   "main": "src/ColorLogger.js",
   "module": "src/ColorLogger.js",
   "exports": {
-    ".": "./src/ColorLogger.js",
-    "./plugin": "./src/plugin.js"
+    ".": {
+      "types": "./src/ColorLogger.d.ts",
+      "import": "./src/ColorLogger.js"
+    },
+    "./plugin": {
+      "types": "./src/plugin/index.d.ts",
+      "import": "./src/plugin/index.js"
+    }
   },
   "contributors": [
     "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
   ],
   "devDependencies": {
-    "@typhonjs-plugin/manager": "^0.0.10",
-    "@typhonjs-utils/build-test": "^0.1.0",
+    "@typhonjs-build-test/esm-d-ts": "^0.2.0-next.4",
+    "@typhonjs-build-test/node": "^0.0.10",
+    "@typhonjs-plugin/manager": "^0.1.0",
     "@typhonjs-utils/error-parser": "^0.0.9"
   },
   "engines": {
-    "node": ">=12.0.0"
+    "node": ">=14.18"
   },
   "files": [
-    "/npm-shrinkwrap.json",
     "/src"
   ],
   "homepage": "https://github.com/typhonjs-node-utils/logger-color#readme",
@@ -32,13 +38,23 @@
     "logger",
     "color"
   ],
+  "typedocOptions": {
+    "dmtLinksService": {
+      "Discord": "https://typhonjs.io/discord/",
+      "GitHub": "https://github.com/typhonjs-node-utils/logger-color",
+      "NPM": "https://www.npmjs.com/package/@typhonjs-utils/logger-color"
+    }
+  },
   "license": "MPL-2.0",
   "repository": "github:typhonjs-node-utils/logger-color",
   "bugs": "https://github.com/typhonjs-node-utils/logger-color/issues",
+  "apidocs": "https://typhonjs-node-utils.github.io/logger-color/",
   "scripts": {
+    "docs": "typedoc-pkg --api-link esm",
     "eslint": "eslint .",
     "posttest": "npm run eslint",
     "prepublishOnly": "npm run test",
-    "test": "c8 --reporter=lcov --reporter=text-summary mocha -colors \"test/src/**/*.test.js\""
+    "test": "c8 --reporter=lcov --reporter=text-summary mocha -colors \"test/src/**/*.test.js\"",
+    "types": "esm-d-ts gen src/ColorLogger.js && esm-d-ts gen src/plugin/index.js"
   }
 }
