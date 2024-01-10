@@ -1,7 +1,5 @@
 /**
- * Provides a color coded logger for ANSI terminal usage. In addition to providing a global scope logger
- * `@typhonjs-utils/logger-color` is optionally plugin enabled via `@typhonjs-plugin/manager` and can self-register on
- * an eventbus with all methods exposed as event bindings.
+ * Provides a color coded logger for ANSI terminal usage.
  *
  * There are several format options to display additional data / info including location where the log method is
  * invoked in addition to a time stamp. By default, the time stamp option is disabled.
@@ -21,10 +19,8 @@
  * - verbose: purple
  * - trace: light cyan
  *
- * Each log method for the log levels above have alternate versions that are accessed by appending `Compact`,
- * `NoColor` or `Raw` to the method name. Or if using event bindings appending `:compact`, `:nocolor` or `:raw`. The no
- * color option with, well, no color outputting the message with the current log format and the raw format will output
- * just the raw message with no format or color applied.
+ * Each log method for the log levels above have alternate versions that are accessed via the extended API,
+ * {@link ColorLogger.ext}, by appending `Compact`, `NoColor`, `Raw`, or `Time` to the method name.
  *
  * @example
  * import { ColorLogger } from '@typhonjs-utils/logger-color';
@@ -33,21 +29,6 @@
  *
  * // simple usage
  * logger.error('An error occurred!');
- *
- * @example
- * import { PluginManager } from '@typhonjs-plugin/manager';
- *
- * const pluginManager = new PluginManager();
- *
- * // This will automatically wire up typhonjs-color-logger to the eventbus.
- * await pluginManager.add({ name: '@typhonjs-utils/logger-color/plugin' });
- *
- * const eventbus = pluginManager.getEventbus();
- *
- * // simple usage
- * eventbus.trigger('log:error', 'An error occurred!');
- *
- * @see https://www.npmjs.com/package/@typhonjs-plugin/manager
  */
 export class ColorLogger
 {
