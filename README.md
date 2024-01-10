@@ -12,3 +12,7 @@
 Provides ANSI color logging.
 
 [API documentation](https://typhonjs-node-utils.github.io/logger-color/)
+
+### Roadmap
+- 100% test coverage
+- Test for variety of browser use cases for extended error parsing / filtering.
