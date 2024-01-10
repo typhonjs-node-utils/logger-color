@@ -8,7 +8,7 @@
  * `trace` method will automatically generate a stack trace.
  *
  * format:
- * ``[LogLevel] [Time] [File] log text``
+ * ``[Tag] [LogLevel] [Time] [File] log text``
  *
  * Log level and color:
  * - fatal: light red
@@ -38,13 +38,28 @@ export class ColorLogger
     * @type {Record<Partial<LogLevel>, string>}
     */
    static #LEVEL_TO_COLOR = Object.freeze({
-      fatal: '[1;31m[F]', // light red
-      error: '[31m[E]',   // red
-      warn: '[33m[W]',    // yellow
-      info: '[32m[I]',    // green
-      debug: '[34m[D]',   // blue
-      verbose: '[35m[V]', // purple
-      trace: '[1;36m[T]'  // light cyan
+      fatal: '[1;31m', // light red
+      error: '[31m',   // red
+      warn: '[33m',    // yellow
+      info: '[32m',    // green
+      debug: '[34m',   // blue
+      verbose: '[35m', // purple
+      trace: '[1;36m'  // light cyan
+   });
+
+   /**
+    * ASCII ESCAPE SEQUENCE https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
+    *
+    * @type {Record<Partial<LogLevel>, string>}
+    */
+   static #LEVEL_TO_TYPE = Object.freeze({
+      fatal: '[F]',     // light red
+      error: '[E]',     // red
+      warn: '[W]',      // yellow
+      info: '[I]',      // green
+      debug: '[D]',     // blue
+      verbose: '[V]',   // purple
+      trace: '[T]'      // light cyan
    });
 
    /**
@@ -110,7 +125,7 @@ export class ColorLogger
    /**
     * Instantiates ColorLogger allowing optional options to be set.
     *
-    * @param {ColorLoggerOptions}   [options] - Optional ColorLoggerOptions to set.
+    * @param {Partial<ColorLoggerOptions>}   [options] - Optional ColorLoggerOptions to set.
     */
    constructor(options = {})
    {
@@ -121,7 +136,9 @@ export class ColorLogger
          consoleEnabled: true,
          noColor: false,
          showDate: false,
-         showInfo: false
+         showInfo: false,
+         showLevel: false,
+         tag: void 0
       };
 
       this.#logLevel = ColorLogger.#LOG_LEVELS['info'];
@@ -289,7 +306,7 @@ export class ColorLogger
    /**
     * Returns whether the given log level is enabled.
     *
-    * @param {string}   level - log level
+    * @param {LogLevel}   level - log level
     *
     * @returns {boolean} True if the log level is enabled.
     */
@@ -313,7 +330,7 @@ export class ColorLogger
     *
     * @returns {boolean} True if the given log level provided is valid.
     */
-   isValidLogLevel(level)
+   isValidLevel(level)
    {
       return typeof level === 'string' && typeof ColorLogger.#LOG_LEVELS[level] === 'number';
    }
@@ -344,40 +361,39 @@ export class ColorLogger
 
       const isTrace = level === 'trace';
 
-      for (const m of msg)
+      if (!raw)
       {
-         if (typeof m === 'object' && !(m instanceof Error))
+         for (const m of msg)
          {
-            text.push(compact ? JSON.stringify(m) : JSON.stringify(m, null, 3));
-         }
-         else if (m instanceof Error)
-         {
-            const result = this.#getTraceInfo(m);
+            if (typeof m === 'object' && !(m instanceof Error))
+            {
+               text.push(compact ? JSON.stringify(m) : JSON.stringify(m, null, 3));
+            }
+            else if (m instanceof Error)
+            {
+               const result = this.#getTraceInfo(m);
 
-            text.push(`${m.message}\n${result.trace}`);
-         }
-         else
-         {
-            text.push(m);
+               text.push(`${m.message}\n${result.trace}`);
+            }
+            else
+            {
+               text.push(m);
+            }
          }
       }
 
       const color = this.#options.noColor || nocolor ? '' : ColorLogger.#LEVEL_TO_COLOR[level];
-
-      const spacer = raw ? '' : ' ';
 
       let info = '';
       let trace = '';
 
       let traceResult = void 0;
 
-      if (this.#options.showInfo && !raw && !time)
+      if (this.#options.showInfo && !raw)
       {
-         const infoSpace = this.#options.noColor || nocolor ? '' : ' ';
-
          traceResult = this.#getTraceInfo(void 0);
 
-         info = `${infoSpace}[${traceResult.info}]`;
+         info = `[${traceResult.info}] `;
       }
 
       if (isTrace)
@@ -408,14 +424,31 @@ export class ColorLogger
          let sec = d.getSeconds();
          if (sec < 10) { sec = `0${sec}`; }
 
-         now = ` [${d.getFullYear()}-${month}-${date}T${hour}:${minutes}:${sec}.${d.getMilliseconds()}Z]`;
+         now = `[${d.getFullYear()}-${month}-${date}T${hour}:${minutes}:${sec}.${d.getMilliseconds()}Z] `;
       }
 
-      const log = `${color}${now}${info}${spacer}${text.join('\n')}${trace}[0m`;
+      let levelTag = '';
+      let tag = '';
+
+      if (!raw)
+      {
+         if (typeof this.#options.tag === 'string' && this.#options.tag !== '') { tag = `[${this.#options.tag}] `; }
+
+         if (this.#options.showLevel) { levelTag = `${ColorLogger.#LEVEL_TO_TYPE[level]} `; }
+      }
+
+      const log = `${color}${tag}${levelTag}${now}${info}${text.join('\n')}${trace}[0m`;
 
       if (this.#options.consoleEnabled)
       {
-         console.log(log);
+         if (raw)
+         {
+            console.log(...msg);
+         }
+         else
+         {
+            console.log(log);
+         }
       }
 
       return log;
@@ -445,7 +478,7 @@ export class ColorLogger
    /**
     * Set optional parameters.
     *
-    * @param {ColorLoggerOptions} options - Defines optional parameters to set.
+    * @param {Partial<ColorLoggerOptions>} options - Defines optional parameters to set.
     */
    setOptions(options = {})
    {
@@ -455,6 +488,8 @@ export class ColorLogger
       if (typeof options.noColor === 'boolean') { this.#options.noColor = options.noColor; }
       if (typeof options.showDate === 'boolean') { this.#options.showDate = options.showDate; }
       if (typeof options.showInfo === 'boolean') { this.#options.showInfo = options.showInfo; }
+      if (typeof options.showLevel === 'boolean') { this.#options.showLevel = options.showLevel; }
+      if (typeof options.tag === 'string') { this.#options.tag = options.tag; }
    }
 
    // Logging methods -----------------------------------------------------------------------------------------------
@@ -604,11 +639,15 @@ export class ColorLogger
 /**
  * @typedef {object}    ColorLoggerOptions Provides ColorLoggerOptions
  *
- * @property {boolean}  [consoleEnabled=true] - If true output to `console.log` is enabled.
+ * @property {boolean}  consoleEnabled If true output to `console.log` is enabled.
  *
- * @property {boolean}  [noColor=false] - If true output does not contain ANSI color codes.
+ * @property {boolean}  noColor If true output does not contain ANSI color codes.
  *
- * @property {boolean}  [showDate=false] - If true the date is added to format results
+ * @property {boolean}  showDate If true the date is added to format results
  *
- * @property {boolean}  [showInfo=true] - If true the location of where the log method is invoked is added to output.
+ * @property {boolean}  showInfo If true the location of where the log method is invoked is added to output.
+ *
+ * @property {boolean}  showLevel If true the log level is prepended to the log output.
+ *
+ * @property {string|undefined}  tag Custom tag to prepend to log output.
  */
