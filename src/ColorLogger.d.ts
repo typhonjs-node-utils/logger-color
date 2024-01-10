@@ -238,7 +238,7 @@ interface ColorLoggerExt {
  * `trace` method will automatically generate a stack trace.
  *
  * format:
- * ``[LogLevel] [Time] [File] log text``
+ * ``[Tag] [LogLevel] [Time] [File] log text``
  *
  * Log level and color:
  * - fatal: light red
@@ -264,9 +264,9 @@ declare class ColorLogger {
     /**
      * Instantiates ColorLogger allowing optional options to be set.
      *
-     * @param {ColorLoggerOptions}   [options] - Optional ColorLoggerOptions to set.
+     * @param {Partial<ColorLoggerOptions>}   [options] - Optional ColorLoggerOptions to set.
      */
-    constructor(options?: ColorLoggerOptions);
+    constructor(options?: Partial<ColorLoggerOptions>);
     /**
      * @returns {import('./types').ColorLoggerExt} Extended logging API.
      */
@@ -286,11 +286,11 @@ declare class ColorLogger {
     /**
      * Returns whether the given log level is enabled.
      *
-     * @param {string}   level - log level
+     * @param {LogLevel}   level - log level
      *
      * @returns {boolean} True if the log level is enabled.
      */
-    isLevelEnabled(level: string): boolean;
+    isLevelEnabled(level: LogLevel): boolean;
     /**
      * Returns true if the given level is a valid log level.
      *
@@ -298,7 +298,7 @@ declare class ColorLogger {
      *
      * @returns {boolean} True if the given log level provided is valid.
      */
-    isValidLogLevel(level: string): boolean;
+    isValidLevel(level: string): boolean;
     /**
      * Sets the current log level.
      *
@@ -310,9 +310,9 @@ declare class ColorLogger {
     /**
      * Set optional parameters.
      *
-     * @param {ColorLoggerOptions} options - Defines optional parameters to set.
+     * @param {Partial<ColorLoggerOptions>} options - Defines optional parameters to set.
      */
-    setOptions(options?: ColorLoggerOptions): void;
+    setOptions(options?: Partial<ColorLoggerOptions>): void;
     /**
      * Display fatal (light red) log.
      *
@@ -391,21 +391,29 @@ type LogLevel = 'off' | 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'verbose
  */
 type ColorLoggerOptions = {
     /**
-     * - If true output to `console.log` is enabled.
+     * If true output to `console.log` is enabled.
      */
-    consoleEnabled?: boolean;
+    consoleEnabled: boolean;
     /**
-     * - If true output does not contain ANSI color codes.
+     * If true output does not contain ANSI color codes.
      */
-    noColor?: boolean;
+    noColor: boolean;
     /**
-     * - If true the date is added to format results
+     * If true the date is added to format results
      */
-    showDate?: boolean;
+    showDate: boolean;
     /**
-     * - If true the location of where the log method is invoked is added to output.
+     * If true the location of where the log method is invoked is added to output.
      */
-    showInfo?: boolean;
+    showInfo: boolean;
+    /**
+     * If true the log level is prepended to the log output.
+     */
+    showLevel: boolean;
+    /**
+     * Custom tag to prepend to log output.
+     */
+    tag: string | undefined;
 };
 
 export { ColorLogger, type ColorLoggerExt, type ColorLoggerOptions, type LogLevel };
