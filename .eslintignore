@@ -1,2 +1,4 @@
 /.dts
 /docs
+*.d.ts
+*.ts
