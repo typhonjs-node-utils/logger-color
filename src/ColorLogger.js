@@ -27,18 +27,22 @@
  * just the raw message with no format or color applied.
  *
  * @example
- * import logger from '@typhonjs-utils/logger-color';
+ * import { ColorLogger } from '@typhonjs-utils/logger-color';
+ *
+ * const logger = new ColorLogger();
  *
  * // simple usage
  * logger.error('An error occurred!');
  *
  * @example
- * import PluginManager    from '@typhonjs-plugin/manager';
+ * import { PluginManager } from '@typhonjs-plugin/manager';
  *
  * const pluginManager = new PluginManager();
  *
  * // This will automatically wire up typhonjs-color-logger to the eventbus.
- * await pluginManager.add({ name: @typhonjs-utils/logger-color });
+ * await pluginManager.add({ name: '@typhonjs-utils/logger-color/plugin' });
+ *
+ * const eventbus = pluginManager.getEventbus();
  *
  * // simple usage
  * eventbus.trigger('log:error', 'An error occurred!');
@@ -814,3 +818,17 @@ const s_PARSE_STACK_TRACE = (stack) =>
 
    return { info, trace: trace.join('\n') };
 };
+
+/**
+ * Provides ColorLoggerOptions
+ *
+ * @typedef {object}    ColorLoggerOptions
+ *
+ * @property {boolean}  [consoleEnabled=true] - If true output to `console.log` is enabled.
+ *
+ * @property {boolean}  [noColor=false] - If true output does not contain ANSI color codes.
+ *
+ * @property {boolean}  [showDate=false] - If true the date is added to format results
+ *
+ * @property {boolean}  [showInfo=true] - If true the location of where the log method is invoked is added to output.
+ */
