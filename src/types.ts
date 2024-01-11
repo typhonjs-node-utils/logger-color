@@ -1,5 +1,10 @@
 /**
  * Provides an extended set of logging methods to explicitly control options.
+ *
+ * @example
+ * ```js
+ * logger.ext.infoNoColor('An info log message with no color');
+ * ```
  */
 export interface ColorLoggerExt
 {
@@ -258,6 +263,13 @@ export interface ColorLoggerExt
 
 /**
  * Provides the `is` API allowing compact checks for log level conditional statements.
+ *
+ * @example
+ * ```js
+ * if (logger.is.verbose) {
+ *    // The logger is configured for verbose logging.
+ * }
+ * ```
  */
 export interface ColorLoggerIs
 {
