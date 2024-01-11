@@ -23,6 +23,14 @@ describe('ColorLogger Plugin:', () =>
          assert.strictEqual(logger.getLogLevel(), 'info');
       });
 
+      it('is API:', () =>
+      {
+         assert.isTrue(logger.is.info);
+         assert.isFalse(logger.is.trace);
+         logger.setLogLevel('trace');
+         assert.isTrue(logger.is.trace);
+      });
+
       it('trace:', () =>
       {
          logger.setLogLevel('trace');
