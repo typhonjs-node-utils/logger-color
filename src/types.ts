@@ -255,3 +255,44 @@ export interface ColorLoggerExt
     */
    traceTime(...msg: any[]): string;
 }
+
+/**
+ * Provides the `is` API allowing compact checks for log level conditional statements.
+ */
+export interface ColorLoggerIs
+{
+   /**
+    * @returns {boolean} Whether `fatal` logging is enabled.
+    */
+   get fatal(): boolean;
+
+   /**
+    * @returns {boolean} Whether `error` logging is enabled.
+    */
+   get error(): boolean;
+
+   /**
+    * @returns {boolean} Whether `warn` logging is enabled.
+    */
+   get warn(): boolean;
+
+   /**
+    * @returns {boolean} Whether `info` logging is enabled.
+    */
+   get info(): boolean;
+
+   /**
+    * @returns {boolean} Whether `debug` logging is enabled.
+    */
+   get debug(): boolean;
+
+   /**
+    * @returns {boolean} Whether `verbose` logging is enabled.
+    */
+   get verbose(): boolean;
+
+   /**
+    * @returns {boolean} Whether `trace` logging is enabled.
+    */
+   get trace(): boolean;
+}

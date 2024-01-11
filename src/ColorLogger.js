@@ -109,6 +109,11 @@ export class ColorLogger
    #extAPI;
 
    /**
+    * @type {import('./types').ColorLoggerIs}
+    */
+   #isAPI;
+
+   /**
     * Stores the current internal log level.
     *
     * @type {number}
@@ -243,6 +248,29 @@ export class ColorLogger
    }
 
    /**
+    * @returns {import('./types').ColorLoggerIs} Is log level accessor API.
+    */
+   get is()
+   {
+      if (!this.#isAPI)
+      {
+         const logger = this;
+
+         this.#isAPI = Object.freeze({
+            get fatal() { return logger.isLevelEnabled('fatal'); },
+            get error() { return logger.isLevelEnabled('error'); },
+            get warn() { return logger.isLevelEnabled('warn'); },
+            get info() { return logger.isLevelEnabled('info'); },
+            get debug() { return logger.isLevelEnabled('debug'); },
+            get verbose() { return logger.isLevelEnabled('verbose'); },
+            get trace() { return logger.isLevelEnabled('trace'); }
+         });
+      }
+
+      return this.#isAPI;
+   }
+
+   /**
     * Get the log level string.
     *
     * @returns {LogLevel} Log level string.
@@ -314,7 +342,7 @@ export class ColorLogger
    {
       const requestedLevel = ColorLogger.#LOG_LEVELS[level];
 
-      if (typeof requestedLevel === 'undefined' || requestedLevel === null)
+      if (requestedLevel === void 0)
       {
          console.log(`isLevelEnabled - unknown log level: ${level}`);
          return false;
