@@ -29,6 +29,8 @@
  *
  * // simple usage
  * logger.error('An error occurred!');
+ *
+ * @implements {import('./types').BasicLogger}
  */
 export class ColorLogger
 {
@@ -378,7 +380,7 @@ export class ColorLogger
     *
     * @param {...*}     msg - log message.
     *
-    * @returns {string|undefined} formatted log message or undefined if log level is not enabled.
+    * @returns {string | undefined} formatted log message or undefined if log level is not enabled.
     * @private
     */
    #output(level, compact = false, nocolor = false, raw = false, time = false,  ...msg)
@@ -527,7 +529,7 @@ export class ColorLogger
     *
     * @param {...*} msg - log message.
     *
-    * @returns {string} formatted log message.
+    * @returns {string | undefined} Formatted log message or undefined if log level is not enabled.
     */
    fatal(...msg) { return this.#output('fatal', false, false, false, false, ...msg); }
 
@@ -536,7 +538,7 @@ export class ColorLogger
     *
     * @param {...*} msg - log message.
     *
-    * @returns {string} formatted log message.
+    * @returns {string | undefined} Formatted log message or undefined if log level is not enabled.
     */
    error(...msg) { return this.#output('error', false, false, false, false, ...msg); }
 
@@ -545,7 +547,7 @@ export class ColorLogger
     *
     * @param {...*} msg - log message.
     *
-    * @returns {string} formatted log message.
+    * @returns {string | undefined} Formatted log message or undefined if log level is not enabled.
     */
    warn(...msg) { return this.#output('warn', false, false, false, false, ...msg); }
 
@@ -554,7 +556,7 @@ export class ColorLogger
     *
     * @param {...*} msg - log message.
     *
-    * @returns {string} formatted log message.
+    * @returns {string | undefined} Formatted log message or undefined if log level is not enabled.
     */
    info(...msg) { return this.#output('info', false, false, false, false, ...msg); }
 
@@ -563,7 +565,7 @@ export class ColorLogger
     *
     * @param {...*} msg - log message.
     *
-    * @returns {string} formatted log message.
+    * @returns {string | undefined} Formatted log message or undefined if log level is not enabled.
     */
    debug(...msg) { return this.#output('debug', false, false, false, false, ...msg); }
 
@@ -572,7 +574,7 @@ export class ColorLogger
     *
     * @param {...*} msg - log message.
     *
-    * @returns {string} formatted log message.
+    * @returns {string | undefined} Formatted log message or undefined if log level is not enabled.
     */
    verbose(...msg) { return this.#output('verbose', false, false, false, false, ...msg); }
 
@@ -581,7 +583,7 @@ export class ColorLogger
     *
     * @param {...*} msg - log message.
     *
-    * @returns {string} formatted log message.
+    * @returns {string | undefined} Formatted log message or undefined if log level is not enabled.
     */
    trace(...msg) { return this.#output('trace', false, false, false, false, ...msg); }
 
