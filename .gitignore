@@ -5,5 +5,5 @@ npm-debug.log
 *-error.log
 /.dts
 /.nyc_output
-/coverage
+/html
 node_modules
