@@ -21,8 +21,8 @@
     "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)"
   ],
   "devDependencies": {
-    "@typhonjs-build-test/esm-d-ts" : "^0.3.0-next.11",
-    "@typhonjs-config/eslint-config" : "^0.6.0",
+    "@typhonjs-build-test/esm-d-ts": "^0.3.0-next.11",
+    "@typhonjs-config/eslint-config": "^0.6.0",
     "@typhonjs-plugin/manager": "^0.2.0",
     "@typhonjs-typedoc/typedoc-pkg": "^0.4.0",
     "@typhonjs-utils/error-parser": "^0.0.10",
@@ -52,7 +52,10 @@
     }
   },
   "license": "MPL-2.0",
-  "repository": "github:typhonjs-node-utils/logger-color",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/typhonjs-node-utils/logger-color.git"
+  },
   "bugs": "https://github.com/typhonjs-node-utils/logger-color/issues",
   "apidocs": "https://typhonjs-node-utils.github.io/logger-color/",
   "scripts": {
