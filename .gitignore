@@ -3,7 +3,7 @@
 npm-debug.log
 *-debug.log
 *-error.log
+/coverage
 /.dts
-/.nyc_output
 /html
 node_modules

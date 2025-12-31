@@ -1,7 +1,7 @@
 {
   "name": "@typhonjs-utils/logger-color",
   "description": "Provides ANSI color logging.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Michael Leahy <support@typhonjs.io> (https://github.com/typhonrt)",
   "type": "module",
   "main": "src/ColorLogger.js",
